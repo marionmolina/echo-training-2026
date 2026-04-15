@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECHO Training 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap');
+  :root {
+    --soul:#ffff00;--dark:#0a0a0a;--white:#ffffff;
+    --red:#ff4444;--green:#44ff88;--gold:#ffd700;--blue:#88ccff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--dark);color:#d0d0d0;
+    font-family:'VT323',monospace;font-size:22px;
+    min-height:100vh;overflow-x:hidden;cursor:default;user-select:none;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;z-index:999;pointer-events:none;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.15) 2px,rgba(0,0,0,.15) 4px);
+  }
+  #stars{position:fixed;inset:0;z-index:0;overflow:hidden;}
+  .star{position:absolute;background:white;border-radius:50%;animation:twinkle var(--d,3s) ease-in-out infinite;opacity:0;}
+  @keyframes twinkle{0%,100%{opacity:0;transform:scale(.8)}50%{opacity:var(--op,.7);transform:scale(1.2)}}
+  #scene{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-height:100vh;padding:24px 16px;gap:0;position:relative;
+  }
+  #sprite-area{
+    position:relative;z-index:2;display:flex;align-items:flex-end;
+    justify-content:center;height:110px;width:100%;max-width:640px;margin-bottom:-6px;
+  }
+  /* FIX 1: responsive sprite size */
+  .sprite{
+    font-size:clamp(48px, 12vw, 72px);
+    line-height:1;filter:drop-shadow(0 0 18px var(--soul));
+    animation:bob .8s ease-in-out infinite alternate;display:none;transition:filter 1s;
+  }
+  .sprite.active{display:block;}
+  @keyframes bob{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+  #dialogue-box{
+    position:relative;z-index:2;width:100%;max-width:640px;
+    background:var(--dark);border:4px solid var(--white);padding:20px 24px 14px;
+    box-shadow:inset 0 0 0 2px var(--dark),0 0 0 2px var(--white),0 0 32px rgba(255,255,100,.06);
+    transition:border-color 1s,box-shadow 1s;
+  }
+  #speaker-name{
+    font-family:'Press Start 2P',monospace;font-size:10px;color:var(--soul);
+    margin-bottom:12px;letter-spacing:2px;min-height:16px;transition:color 1s;
+  }
+  #dialogue-text{font-family:'VT323',monospace;font-size:28px;line-height:1.55;color:#d0d0d0;min-height:88px;word-break:break-word;transition:color .4s;}
+  #next-tri{text-align:right;color:var(--soul);font-size:20px;margin-top:6px;animation:blink .7s step-end infinite;opacity:0;transition:opacity .3s;}
+  #next-tri.show{opacity:1;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+  #soul-wrap{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;margin-top:8px;height:42px;}
+  #soul{font-size:28px;color:var(--red);filter:drop-shadow(0 0 10px var(--red));animation:hb 1.2s ease-in-out infinite;transition:color 1.2s,filter 1.2s;}
+  #soul.golden{color:var(--gold);filter:drop-shadow(0 0 18px var(--gold)) drop-shadow(0 0 36px var(--gold));}
+  @keyframes hb{0%,100%{transform:scale(1)}15%{transform:scale(1.25)}30%{transform:scale(1)}45%{transform:scale(1.15)}}
+  #event-card{position:relative;z-index:2;margin-top:22px;text-align:center;opacity:0;transition:opacity 1.5s;}
+  #event-card.show{opacity:1;}
+  /* FIX 2: responsive event title */
+  #etitle{
+    font-family:'Press Start 2P',monospace;
+    font-size:clamp(9px, 2.5vw, 12px);
+    color:var(--gold);
+    letter-spacing:clamp(1px, 0.5vw, 3px);
+    text-shadow:0 0 20px var(--gold),0 0 40px rgba(255,215,0,.4);
+    margin-bottom:10px;line-height:1.9;
+    word-break:break-word;
+  }
+  #edate{font-family:'VT323',monospace;font-size:26px;color:var(--green);letter-spacing:2px;text-shadow:0 0 12px var(--green);}
+  #etheme{font-family:'VT323',monospace;font-size:20px;color:#aaddff;margin-top:6px;letter-spacing:1px;}
+  /* FIX 3: larger hint text */
+  #hint{
+    position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+    font-family:'Press Start 2P',monospace;
+    font-size:clamp(8px, 2vw, 10px);
+    color:rgba(255,255,255,.3);
+    letter-spacing:1px;z-index:10;pointer-events:none;
+    white-space:nowrap;
+  }
+  /* FIX 4: mobile hint text */
+  @media(max-width:480px){
+    #hint-text-desktop{display:none;}
+    #hint-text-mobile{display:inline;}
+  }
+  @media(min-width:481px){
+    #hint-text-desktop{display:inline;}
+    #hint-text-mobile{display:none;}
+  }
+  .dust{position:fixed;pointer-events:none;font-size:14px;animation:df 1.2s ease-out forwards;z-index:50;}
+  @keyframes df{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(.3)}}
+  #flash{position:fixed;inset:0;z-index:900;pointer-events:none;background:white;opacity:0;transition:opacity .08s;}
+  #flash.on{opacity:.2;}
+  #bb{position:fixed;inset:0;z-index:800;pointer-events:none;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .4s;}
+  #bb.show{opacity:1;}
+  .bb-inner{width:180px;height:120px;border:3px solid white;background:black;display:flex;align-items:center;justify-content:center;font-size:32px;animation:bbp 1s ease-in-out infinite alternate;}
+  @keyframes bbp{from{box-shadow:0 0 8px white}to{box-shadow:0 0 28px white,0 0 60px rgba(255,255,255,.3)}}
+  body.pess #dialogue-box{border-color:#555;box-shadow:inset 0 0 0 2px var(--dark),0 0 0 2px #444;}
+  body.turn #dialogue-box{border-color:#aaa;}
+  body.hope #dialogue-box{border-color:var(--gold);box-shadow:inset 0 0 0 2px var(--dark),0 0 0 2px var(--gold),0 0 40px rgba(255,215,0,.15);}
+  /* FIX 4: tap ripple feedback for mobile */
+  #tap-ring{
+    position:fixed;pointer-events:none;z-index:60;
+    width:48px;height:48px;border-radius:50%;
+    border:2px solid var(--gold);opacity:0;
+    transform:translate(-50%,-50%) scale(0);
+    transition:none;
+  }
+  #tap-ring.pop{
+    animation:tapring .5s ease-out forwards;
+  }
+  @keyframes tapring{
+    0%{opacity:.9;transform:translate(-50%,-50%) scale(0);}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(2.5);}
+  }
+</style>
+</head>
+<body class="pess">
+<div id="flash"></div>
+<div id="tap-ring"></div>
+<div id="stars"></div>
+<div id="scene">
+  <div id="sprite-area">
+    <div class="sprite active" id="s-flowey">🌻</div>
+    <div class="sprite" id="s-frisk">🧡</div>
+    <div class="sprite" id="s-toriel">🐐</div>
+    <div class="sprite" id="s-sans">💀</div>
+    <div class="sprite" id="s-undyne">🐟</div>
+    <div class="sprite" id="s-alphys">🦎</div>
+    <div class="sprite" id="s-mtt">⭐</div>
+    <div class="sprite" id="s-asgore">👑</div>
+    <div class="sprite" id="s-asriel">🌸</div>
+    <div class="sprite" id="s-echo">🔥</div>
+  </div>
+  <div id="dialogue-box">
+    <div id="speaker-name">FLOWEY</div>
+    <div id="dialogue-text">_</div>
+    <div id="next-tri">▼</div>
+  </div>
+  <div id="soul-wrap"><div id="soul">❤</div></div>
+  <div id="event-card">
+    <div id="etitle">ECHO TRAINING 2026</div>
+    <div id="edate">📅  APRIL 16 – 17, 2026</div>
+    <div id="etheme">"From Passion to Purpose: Shaping Leaders for Change"</div>
+  </div>
+</div>
+<div id="hint">
+  <span id="hint-text-desktop">CLICK  OR  PRESS  Z / ENTER  TO  CONTINUE</span>
+  <span id="hint-text-mobile">TAP  TO  CONTINUE</span>
+</div>
+<div id="bb"><div class="bb-inner">❤</div></div>
+
+<script>
+const starsEl=document.getElementById('stars');
+for(let i=0;i<80;i++){const s=document.createElement('div');s.className='star';const z=Math.random()*2.5+.5;s.style.cssText=`width:${z}px;height:${z}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*5}s;--op:${.3+Math.random()*.7};animation-delay:${Math.random()*6}s`;starsEl.appendChild(s);}
+
+const LINES=[
+  {sp:"FLOWEY",  id:"s-flowey", t:"In this world...",                        tone:"pess", c:"#999"},
+  {sp:"FLOWEY",  id:"s-flowey", t:"...it's kill or be killed.",               tone:"pess", c:"#888"},
+  {sp:"FLOWEY",  id:"s-flowey", t:"You think you have a dream?",              tone:"pess", c:"#777"},
+  {sp:"FLOWEY",  id:"s-flowey", t:"How PATHETIC.",                            tone:"pess", c:"#666"},
+  {sp:"FLOWEY",  id:"s-flowey", t:"You're just another lost soul wandering in the dark.", tone:"pess", c:"#555"},
+  {sp:"FLOWEY",  id:"s-flowey", t:"No one will ever notice you.",             tone:"pess", c:"#444"},
+  {sp:"FLOWEY",  id:"s-flowey", t:"Your passion means NOTHING.",              tone:"pess", c:"#333"},
+  {sp:"???",     id:"s-frisk",  t:"...",                                      tone:"turn", c:"#ddd", flash:true},
+  {sp:"FRISK",   id:"s-frisk",  t:"I refuse to believe that.",                tone:"turn", c:"#fff"},
+  {sp:"TORIEL",  id:"s-toriel", t:"My child... your heart is full of determination.", tone:"hope", c:"#ffccaa"},
+  {sp:"TORIEL",  id:"s-toriel", t:"That is not a weakness.",                  tone:"hope", c:"#ffd8bb"},
+  {sp:"TORIEL",  id:"s-toriel", t:"It is the beginning of purpose.",          tone:"hope", c:"#ffeedd"},
+  {sp:"SANS",    id:"s-sans",   t:"heya. took ya a while to get here.",       tone:"hope", c:"#aaddff"},
+  {sp:"SANS",    id:"s-sans",   t:"but every single step? it counted.",       tone:"hope", c:"#bbddff"},
+  {sp:"SANS",    id:"s-sans",   t:"heh. don't give up, kid.",                 tone:"hope", c:"#ccecff"},
+  {sp:"UNDYNE",  id:"s-undyne", t:"NGAAAH! Stop making excuses!",             tone:"hope", c:"#44ff88"},
+  {sp:"UNDYNE",  id:"s-undyne", t:"A true leader FIGHTS for what they believe in!", tone:"hope", c:"#55ffaa"},
+  {sp:"UNDYNE",  id:"s-undyne", t:"Your passion is a SPEAR — throw it!",     tone:"hope", c:"#77ffcc"},
+  {sp:"ALPHYS",  id:"s-alphys", t:"U-um... I-I believe in you!",              tone:"hope", c:"#ffee88"},
+  {sp:"ALPHYS",  id:"s-alphys", t:"Even when you're scared... that IS courage.", tone:"hope", c:"#ffffaa"},
+  {sp:"MTT",     id:"s-mtt",    t:"DARLING. The world is your STAGE.",        tone:"hope", c:"#ff88ff"},
+  {sp:"MTT",     id:"s-mtt",    t:"And YOU — you are the star they've been waiting for!", tone:"hope", c:"#ffaaff"},
+  {sp:"ASGORE",  id:"s-asgore", t:"You carry something precious inside you.", tone:"hope", c:"#ffaa44"},
+  {sp:"ASGORE",  id:"s-asgore", t:"A flame lit the moment you chose to care.",tone:"hope", c:"#ffcc66"},
+  {sp:"ASGORE",  id:"s-asgore", t:"That is leadership.",                      tone:"hope", c:"#ffdd88"},
+  {sp:"ASRIEL",  id:"s-asriel", t:"I used to think... no one could change anything.", tone:"hope", c:"#ffddee"},
+  {sp:"ASRIEL",  id:"s-asriel", t:"But then I saw you.",                      tone:"hope", c:"#ffeef5"},
+  {sp:"ASRIEL",  id:"s-asriel", t:"Love is the strongest DETERMINATION.",     tone:"hope", c:"#ffffff", soul:true},
+  {sp:"ECHO 2026",id:"s-echo",  t:"Your journey from passion to purpose begins here.", tone:"hope", c:"#ffd700"},
+  {sp:"ECHO 2026",id:"s-echo",  t:"Not alone. Together.",                     tone:"hope", c:"#ffe040"},
+  {sp:"ECHO 2026",id:"s-echo",  t:"Leaders are not born in silence.",         tone:"hope", c:"#ffec60"},
+  {sp:"ECHO 2026",id:"s-echo",  t:"They are forged in moments like THIS.",    tone:"hope", c:"#fff080"},
+  {sp:"ECHO 2026",id:"s-echo",  t:"April 16 & 17, 2026. See you there.",      tone:"hope", c:"#fff9a0", end:true},
+];
+
+let idx=0,typing=false,timer=null,full='',ci=0;
+const nameEl=document.getElementById('speaker-name'),
+      textEl=document.getElementById('dialogue-text'),
+      triEl =document.getElementById('next-tri'),
+      soulEl=document.getElementById('soul'),
+      card  =document.getElementById('event-card'),
+      flashEl=document.getElementById('flash'),
+      bbEl  =document.getElementById('bb'),
+      tapRing=document.getElementById('tap-ring');
+
+function setSprite(id){document.querySelectorAll('.sprite').forEach(s=>s.classList.remove('active'));const e=document.getElementById(id);if(e)e.classList.add('active');}
+function doFlash(){flashEl.classList.add('on');setTimeout(()=>flashEl.classList.remove('on'),130);}
+function dust(x,y){const em=['✨','💫','⭐','🌟','💛'];for(let i=0;i<5;i++){const d=document.createElement('div');d.className='dust';d.textContent=em[~~(Math.random()*em.length)];d.style.cssText=`left:${x+(Math.random()-.5)*80}px;top:${y}px;animation-delay:${Math.random()*.2}s`;document.body.appendChild(d);setTimeout(()=>d.remove(),1400);}}
+
+// FIX 4: tap ring feedback
+function showTapRing(x,y){
+  tapRing.style.left=x+'px';
+  tapRing.style.top=y+'px';
+  tapRing.classList.remove('pop');
+  void tapRing.offsetWidth;
+  tapRing.classList.add('pop');
+}
+
+function run(line){
+  typing=true;triEl.classList.remove('show');
+  full=line.t;ci=0;
+  textEl.style.color=line.c;
+  nameEl.textContent=line.sp;
+  document.body.className=line.tone==='pess'?'pess':line.tone==='turn'?'turn':'hope';
+  nameEl.style.color=line.tone==='pess'?'#888':line.tone==='turn'?'#ccc':'#ffd700';
+  if(line.soul)soulEl.classList.add('golden');
+  if(line.flash)doFlash();
+  setSprite(line.id);
+  function tick(){
+    if(ci<full.length){
+      textEl.textContent=full.slice(0,++ci)+(ci<full.length?'▌':'');
+      const delay='.!?'.includes(full[ci-1])?110:30;
+      timer=setTimeout(tick,delay);
+    } else {
+      textEl.textContent=full;typing=false;
+      if(line.end)setTimeout(()=>{card.classList.add('show');triEl.classList.remove('show');},600);
+      else triEl.classList.add('show');
+    }
+  }
+  tick();
+}
+
+function advance(e){
+  if(e&&e.type==='keydown'&&e.key!=='z'&&e.key!=='Z'&&e.key!=='Enter')return;
+  const cx=e?.clientX??window.innerWidth/2,cy=e?.clientY??window.innerHeight/2;
+  showTapRing(cx,cy);
+  if(typing){
+    clearTimeout(timer);
+    const line=LINES[idx-1];
+    textEl.textContent=full;textEl.style.color=line.c;typing=false;
+    if(line.end)setTimeout(()=>{card.classList.add('show');},400);
+    else triEl.classList.add('show');
+    return;
+  }
+  if(idx>=LINES.length)return;
+  dust(cx,cy);run(LINES[idx++]);
+}
+
+setTimeout(()=>{
+  bbEl.classList.add('show');
+  setTimeout(()=>{bbEl.classList.remove('show');run(LINES[idx++]);},1300);
+},400);
+
+document.addEventListener('click',advance);
+document.addEventListener('keydown',advance);
+</script>
+</body>
+</html>
