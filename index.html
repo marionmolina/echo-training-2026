@@ -3,7 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ECHO Training 2026</title>
+
+<!-- ============================================================
+     ✅ REPLACE "yourusername" with your actual GitHub username
+        OR replace the full URLs with your Netlify URL
+     ============================================================ -->
+<title>ECHO Training 2026 – From Passion to Purpose</title>
+<meta name="description" content="From Passion to Purpose: Shaping Leaders for Change — April 16–17, 2026 | SLSU Tomas Oppus Campus">
+
+<!-- Open Graph (Facebook, Messenger, Viber, Discord, etc.) -->
+<meta property="og:title"       content="ECHO Training 2026 – Interactive Event Teaser">
+<meta property="og:description" content="From Passion to Purpose: Shaping Leaders for Change — April 16–17, 2026">
+<meta property="og:image"       content="https://yourusername.github.io/echo-training-2026/og-image.png">
+<meta property="og:url"         content="https://yourusername.github.io/echo-training-2026/">
+<meta property="og:type"        content="website">
+<meta property="og:site_name"   content="ECHO Training 2026">
+
+<!-- Twitter Card -->
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="ECHO Training 2026 – Interactive Event Teaser">
+<meta name="twitter:description" content="From Passion to Purpose: Shaping Leaders for Change — April 16–17, 2026">
+<meta name="twitter:image"       content="https://yourusername.github.io/echo-training-2026/og-image.png">
+
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap');
   :root {
@@ -31,7 +52,6 @@
     position:relative;z-index:2;display:flex;align-items:flex-end;
     justify-content:center;height:110px;width:100%;max-width:640px;margin-bottom:-6px;
   }
-  /* FIX 1: responsive sprite size */
   .sprite{
     font-size:clamp(48px, 12vw, 72px);
     line-height:1;filter:drop-shadow(0 0 18px var(--soul));
@@ -59,7 +79,6 @@
   @keyframes hb{0%,100%{transform:scale(1)}15%{transform:scale(1.25)}30%{transform:scale(1)}45%{transform:scale(1.15)}}
   #event-card{position:relative;z-index:2;margin-top:22px;text-align:center;opacity:0;transition:opacity 1.5s;}
   #event-card.show{opacity:1;}
-  /* FIX 2: responsive event title */
   #etitle{
     font-family:'Press Start 2P',monospace;
     font-size:clamp(9px, 2.5vw, 12px);
@@ -71,7 +90,6 @@
   }
   #edate{font-family:'VT323',monospace;font-size:26px;color:var(--green);letter-spacing:2px;text-shadow:0 0 12px var(--green);}
   #etheme{font-family:'VT323',monospace;font-size:20px;color:#aaddff;margin-top:6px;letter-spacing:1px;}
-  /* FIX 3: larger hint text */
   #hint{
     position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
     font-family:'Press Start 2P',monospace;
@@ -80,7 +98,6 @@
     letter-spacing:1px;z-index:10;pointer-events:none;
     white-space:nowrap;
   }
-  /* FIX 4: mobile hint text */
   @media(max-width:480px){
     #hint-text-desktop{display:none;}
     #hint-text-mobile{display:inline;}
@@ -100,7 +117,6 @@
   body.pess #dialogue-box{border-color:#555;box-shadow:inset 0 0 0 2px var(--dark),0 0 0 2px #444;}
   body.turn #dialogue-box{border-color:#aaa;}
   body.hope #dialogue-box{border-color:var(--gold);box-shadow:inset 0 0 0 2px var(--dark),0 0 0 2px var(--gold),0 0 40px rgba(255,215,0,.15);}
-  /* FIX 4: tap ripple feedback for mobile */
   #tap-ring{
     position:fixed;pointer-events:none;z-index:60;
     width:48px;height:48px;border-radius:50%;
@@ -108,9 +124,7 @@
     transform:translate(-50%,-50%) scale(0);
     transition:none;
   }
-  #tap-ring.pop{
-    animation:tapring .5s ease-out forwards;
-  }
+  #tap-ring.pop{animation:tapring .5s ease-out forwards;}
   @keyframes tapring{
     0%{opacity:.9;transform:translate(-50%,-50%) scale(0);}
     100%{opacity:0;transform:translate(-50%,-50%) scale(2.5);}
@@ -206,7 +220,6 @@ function setSprite(id){document.querySelectorAll('.sprite').forEach(s=>s.classLi
 function doFlash(){flashEl.classList.add('on');setTimeout(()=>flashEl.classList.remove('on'),130);}
 function dust(x,y){const em=['✨','💫','⭐','🌟','💛'];for(let i=0;i<5;i++){const d=document.createElement('div');d.className='dust';d.textContent=em[~~(Math.random()*em.length)];d.style.cssText=`left:${x+(Math.random()-.5)*80}px;top:${y}px;animation-delay:${Math.random()*.2}s`;document.body.appendChild(d);setTimeout(()=>d.remove(),1400);}}
 
-// FIX 4: tap ring feedback
 function showTapRing(x,y){
   tapRing.style.left=x+'px';
   tapRing.style.top=y+'px';
